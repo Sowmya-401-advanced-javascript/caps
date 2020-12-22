@@ -1,18 +1,19 @@
 'use strict';
 
-const events = require('../event-pool');
-
-events.on('pickup', )
+const events = require('../events');
 
 
 
 
-
-
-setInterval(() => {
-    let something = Math.ceil(Math.random() * 100);
-    console.log('Brightness:', brightness);
-    events.emit('', );
-  }, 2000);
+events.on('pickup', (pickupPayload) => {
   
-  module.exports = ;
+  setTimeout(() => {
+    console.log('DRIVER: picked up ' + pickupPayload.orderId );
+    events.emit('in-transit', pickupPayload)
+  }, 1000);
+
+  setTimeout(() => {
+    console.log('DRIVER: delivered ' + pickupPayload.orderId);
+    events.emit('delivered', pickupPayload);
+  }, 3000);
+});
