@@ -1,5 +1,5 @@
 'use strict'; 
-
+require('dotenv').config();
 const faker = require('faker');
 const events = require('../events');
 
