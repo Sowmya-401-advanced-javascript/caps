@@ -1,9 +1,11 @@
 'use strict';
 
+require('dotenv').config();
 const io = require('socket.io-client');
 const host = "http://localhost:3000";
-const capsConnectionSocket = io.connect(`${host}/caps-system`);
+const capsConnectionSocket = io.connect('http://localhost:3000/caps');
 
+capsConnectionSocket.emit('join', process.env.STORENAME)
 
 capsConnectionSocket.on('pickup', (pickupPayload) => {
   
