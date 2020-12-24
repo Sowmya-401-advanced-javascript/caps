@@ -1,12 +1,13 @@
 'use strict';
 
 require('dotenv').config();
-
+const uuid = require('uuid').v4;
 const port = process.env.PORT || 3000;
 const io = require('socket.io')(port);
 
-// Name space for caps
-
+const queue = {
+    orders: {}
+}
 
 function logger(eventName, payload) {
     
@@ -32,9 +33,27 @@ caps.on('connection', (socket) => {
         socket.join(room);
     });
 
-    socket.on('pickup', (pickupPayload) => {
-        logger('pickup', pickupPayload);
-        caps.emit('pickup', pickupPayload);
+    socket.on('pickup', (orderPayload) => {
+        logger('pickup', orderPayload);
+
+        queue.orders[orderPayload.orderId] = orderPayload;
+
+        caps.emit('pickup', orderPayload);
+
+        // socket.emit('added')
+        // caps.emit('orders', { messageID: id, payload});
+    });
+
+    socket.on('received', queuedOrderPayload => {
+        console.log('In the HUB - heard RECEIVED', queuedOrderPayload);
+        delete queue.orders[queuedOrderPayload.orderId];
+    });
+
+    socket.on('getAll', () => {
+        console.log('In the HUB - listening to GETALL');
+        Object.keys(queue.orders).forEach(messageID => {
+            socket.emit('orders', {messageID, payload: queue.orders[messageID]});
+        });
     });
 
     socket.on('in-transit', (transitPayload) => {
@@ -47,5 +66,3 @@ caps.on('connection', (socket) => {
         caps.to(deliveryPayload.storeName).emit('delivered', deliveryPayload);
     });
 })
-
-
